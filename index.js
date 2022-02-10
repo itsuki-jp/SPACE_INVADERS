@@ -7,9 +7,9 @@ const size_H = 50;
 const shooter = new Array(1);
 const enemy = new Array(5);
 let enemyData = new Array(5 * 5); // { x: x, h: h, exist: true };
-let shooterData = [{ x: W - 250, y: H - size_H, shooting: false }];
+let shooterData = { x: W - 250, y: H - size_H, w: size_W, h: size_H, shooting: false };
 let direction = 1; // 1の時は右、-1の時は左に動く
-
+let beam = { x: 200, y: 200, w: 4, h: 15 };
 
 let keypress = [false, false]; // 左、右の矢印が押されているかどうか
 
@@ -37,7 +37,7 @@ const initGame = () => {
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
             ctx.drawImage(enemy[i], 2 * size_W + size_W * j, size_H * i, size_W, size_H);
-            enemyData[5 * i + j] = { x: 2 * size_W + size_W * j, y: size_H * i, exist: true };
+            enemyData[5 * i + j] = { x: 2 * size_W + size_W * j, y: size_H * i, w: size_W, h: size_H, exist: true };
         }
     }
     document.addEventListener("keydown", keyDownEvent);
@@ -49,22 +49,31 @@ const initGame = () => {
     }, 200);
 }
 const mainGame = () => {
+    ctx.save();
     ctx.fillRect(0, 0, W, H);
     // shooterの操作
     if (keypress[0]) {
-        shooterData[0].x -= 10;
-        if (!onBoard(shooterData[0])) {
-            shooterData[0].x += 10;
-            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+        shooterData.x -= 10;
+        if (!onBoard(shooterData)) {
+            shooterData.x += 10;
+            ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
         }
 
     } else if (keypress[1]) {
-        shooterData[0].x += 10;
-        if (!onBoard(shooterData[0])) {
-            shooterData[0].x -= 10;
+        shooterData.x += 10;
+        if (!onBoard(shooterData)) {
+            shooterData.x -= 10;
         }
     }
-    ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+    ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
+
+    // ビーム打つ
+    if (shooterData.shooting) {
+        ctx.fillStyle = 'rgb(255, 255, 0)';
+        beam.y -= beam.h;
+        ctx.fillRect(beam.x, beam.y, beam.w, beam.h);
+    }
+
     // 敵の操作
     let movable = true;
     for (let i = 0; i < enemyData.length; i++) {
@@ -90,7 +99,7 @@ const mainGame = () => {
             ctx.drawImage(enemy[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
         }
     }
-
+    ctx.restore();
 }
 const keyDownEvent = (event) => {
     if (event.key === "ArrowLeft") {
@@ -107,15 +116,17 @@ const keyUpEvent = (event) => {
 }
 const keyPressEvent = (event) => {
     if (event.keyCode === 32) {
-        if (!shooterData[0].shooting) {
+        if (!shooterData.shooting) {
             console.log("space");
-            shooterData[0].shooting = true;
+            shooterData.shooting = true;
+            beam.x = shooterData.x + size_W / 2;
+            beam.y = shooterData.y;
         }
 
     }
 }
 const onBoard = (data) => {
-    if ((0 <= data.x) && (data.x < W - size_W) && (0 <= data.y) && (data.y <= H - size_H)) {
+    if ((0 <= data.x) && (data.x < W - data.w) && (0 <= data.y) && (data.y <= H - data.h)) {
         return true;
     } else {
         return false;
