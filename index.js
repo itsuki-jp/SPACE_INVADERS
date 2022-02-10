@@ -8,6 +8,7 @@ const shooter = new Array(1);
 const enemy = new Array(5);
 let enemyData = new Array(5 * 5); // { x: x, h: h, exist: true };
 let shooterData = [{ x: W - 250, y: H - size_H, shooting: false }];
+let direction = 1; // 1の時は右、-1の時は左に動く
 
 let keypress = [false, false]; // 左、右の矢印が押されているかどうか
 
@@ -65,8 +66,8 @@ const mainGame = () => {
     // 敵の操作
     let movable = true;
     for (let i = 0; i < enemyData.length; i++) {
-        enemyData[i].x += 1;
-        if (!onBoard(enemyData[i])) {
+        enemyData[i].x += 1 * direction;
+        if (enemyData[i].exist && !onBoard(enemyData[i])) {
             movable = false;
             break;
         }
@@ -74,6 +75,16 @@ const mainGame = () => {
     // もし誰も壁に当たらなければ、横に移動する
     if (movable) {
         for (let i = 0; i < enemyData.length; i++) {
+            if (!enemyData[i].exist) { continue; }
+            ctx.drawImage(enemy[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
+        }
+    }
+    // もし誰か壁に当たれば、下に移動する
+    else {
+        direction *= -1;
+        for (let i = 0; i < enemyData.length; i++) {
+            if (!enemyData[i].exist) { continue; }
+            enemyData[i].y += size_H;
             ctx.drawImage(enemy[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
         }
     }
