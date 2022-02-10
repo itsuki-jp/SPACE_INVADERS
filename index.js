@@ -10,6 +10,7 @@ let enemyData = new Array(5 * 5); // { x: x, h: h, exist: true };
 let shooterData = { x: W - 250, y: H - size_H, w: size_W, h: size_H, shooting: false };
 let direction = 1; // 1の時は右、-1の時は左に動く
 let beamData = { x: -100, y: -100, w: 4, h: 15 };
+let interval = null;
 
 let keypress = [false, false]; // 左、右の矢印が押されているかどうか
 
@@ -44,9 +45,9 @@ const initGame = () => {
     document.addEventListener("keyup", keyUpEvent);
     document.addEventListener("keypress", keyPressEvent);
     console.log(enemyData);
-    let inerval = setInterval(() => {
+    interval = setInterval(() => {
         mainGame()
-    }, 200);
+    }, 10);
 }
 const mainGame = () => {
     ctx.save();
@@ -89,6 +90,11 @@ const mainGame = () => {
             if (!enemyData[i].exist) { continue; }
             if (!collisionCheck(beamData, enemyData[i])) {
                 ctx.drawImage(enemyImg[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
+            } else {
+                shooterData.shooting = false;
+                enemyData[i].exist = false;
+                beamData.x = -100;
+                beamData.y = -100;
             }
         }
     }
@@ -97,6 +103,11 @@ const mainGame = () => {
         direction *= -1;
         for (let i = 0; i < enemyData.length; i++) {
             if (!enemyData[i].exist) { continue; }
+            if (collisionCheck(enemyData[i], shooterData)) {
+                console.log("GAME END");
+                clearInterval(interval);
+                gameEnd();
+            }
             enemyData[i].y += size_H;
             ctx.drawImage(enemyImg[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
         }
@@ -127,6 +138,8 @@ const keyPressEvent = (event) => {
 
     }
 }
+
+// 対象のオブジェクト？が移動した際に画面内にいるかどうか判定
 const onBoard = (data) => {
     if ((0 <= data.x) && (data.x < W - data.w) && (0 <= data.y) && (data.y <= H - data.h)) {
         return true;
@@ -134,15 +147,18 @@ const onBoard = (data) => {
         return false;
     }
 }
-const collisionCheck = (b_col, e_col) => {
-    if (((e_col.x <= b_col.x + b_col.w) && (b_col.x <= e_col.x + e_col.w)) && ((b_col.y <= e_col.y + e_col.h) && (e_col.y <= b_col.y + b_col.h))) {
+
+// 2つのオブジェクトの当たり判定
+const collisionCheck = (obj_1, obj_2) => {
+    if ((obj_1.x <= obj_2.x + obj_2.w) && (obj_2.x <= obj_1.x + obj_1.w) &&
+        (obj_2.y <= obj_1.y + obj_1.h) && (obj_1.y <= obj_2.y + obj_2.h)) {
         console.log("collide");
-        shooterData.shooting = false;
-        e_col.exist = false;
         return true;
     }
     return false;
 }
+const gameEnd = () => {
 
+}
 
 init();
