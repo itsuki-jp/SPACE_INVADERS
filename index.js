@@ -44,7 +44,6 @@ const initGame = () => {
     document.addEventListener("keydown", keyDownEvent);
     document.addEventListener("keyup", keyUpEvent);
     document.addEventListener("keypress", keyPressEvent);
-    console.log(enemyData);
     interval = setInterval(() => {
         mainGame()
     }, 10);
@@ -130,7 +129,6 @@ const keyUpEvent = (event) => {
 const keyPressEvent = (event) => {
     if (event.keyCode === 32) {
         if (!shooterData.shooting) {
-            console.log("space");
             shooterData.shooting = true;
             beamData.x = shooterData.x + size_W / 2;
             beamData.y = shooterData.y;
@@ -152,7 +150,6 @@ const onBoard = (data) => {
 const collisionCheck = (obj_1, obj_2) => {
     if ((obj_1.x <= obj_2.x + obj_2.w) && (obj_2.x <= obj_1.x + obj_1.w) &&
         (obj_2.y <= obj_1.y + obj_1.h) && (obj_1.y <= obj_2.y + obj_2.h)) {
-        console.log("collide");
         return true;
     }
     return false;
