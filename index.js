@@ -4,12 +4,12 @@ const W = canvas.width;
 const H = canvas.height;
 const size_W = 50;
 const size_H = 50;
-const shooter = new Array(1);
-const enemy = new Array(5);
+const shooterImg = new Array(1);
+const enemyImg = new Array(5);
 let enemyData = new Array(5 * 5); // { x: x, h: h, exist: true };
 let shooterData = { x: W - 250, y: H - size_H, w: size_W, h: size_H, shooting: false };
 let direction = 1; // 1の時は右、-1の時は左に動く
-let beam = { x: 200, y: 200, w: 4, h: 15 };
+let beamData = { x: -100, y: -100, w: 4, h: 15 };
 
 let keypress = [false, false]; // 左、右の矢印が押されているかどうか
 
@@ -17,7 +17,7 @@ const init = () => {
     ctx.beginPath();
     ctx.fillStyle = 'rgb(54, 50, 50)';
     ctx.fillRect(0, 0, W, H);
-    let totalLoadImage = shooter.length + enemy.length;
+    let totalLoadImage = shooterImg.length + enemyImg.length;
     const loadImage = (arr, imgName) => {
         for (let i = 0; i < arr.length; i++) {
             let img = new Image();
@@ -29,14 +29,14 @@ const init = () => {
             }
         }
     }
-    loadImage(shooter, "shooter");
-    loadImage(enemy, "enemy")
+    loadImage(shooterImg, "shooter");
+    loadImage(enemyImg, "enemy")
 }
 const initGame = () => {
-    ctx.drawImage(shooter[0], W - 250, H - size_H, size_W, size_H);
+    ctx.drawImage(shooterImg[0], W - 250, H - size_H, size_W, size_H);
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
-            ctx.drawImage(enemy[i], 2 * size_W + size_W * j, size_H * i, size_W, size_H);
+            ctx.drawImage(enemyImg[i], 2 * size_W + size_W * j, size_H * i, size_W, size_H);
             enemyData[5 * i + j] = { x: 2 * size_W + size_W * j, y: size_H * i, w: size_W, h: size_H, exist: true };
         }
     }
@@ -56,7 +56,7 @@ const mainGame = () => {
         shooterData.x -= 10;
         if (!onBoard(shooterData)) {
             shooterData.x += 10;
-            ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
+            ctx.drawImage(shooterImg[0], shooterData.x, shooterData.y, size_W, size_H);
         }
 
     } else if (keypress[1]) {
@@ -65,13 +65,13 @@ const mainGame = () => {
             shooterData.x -= 10;
         }
     }
-    ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
+    ctx.drawImage(shooterImg[0], shooterData.x, shooterData.y, size_W, size_H);
 
     // ビーム打つ
     if (shooterData.shooting) {
         ctx.fillStyle = 'rgb(255, 255, 0)';
-        beam.y -= beam.h;
-        ctx.fillRect(beam.x, beam.y, beam.w, beam.h);
+        beamData.y -= beamData.h;
+        if (onBoard(beamData)) { ctx.fillRect(beamData.x, beamData.y, beamData.w, beamData.h); } else { shooterData.shooting = false; }
     }
 
     // 敵の操作
@@ -87,7 +87,9 @@ const mainGame = () => {
     if (movable) {
         for (let i = 0; i < enemyData.length; i++) {
             if (!enemyData[i].exist) { continue; }
-            ctx.drawImage(enemy[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
+            if (!collisionCheck(beamData, enemyData[i])) {
+                ctx.drawImage(enemyImg[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
+            }
         }
     }
     // もし誰か壁に当たれば、下に移動する
@@ -96,7 +98,7 @@ const mainGame = () => {
         for (let i = 0; i < enemyData.length; i++) {
             if (!enemyData[i].exist) { continue; }
             enemyData[i].y += size_H;
-            ctx.drawImage(enemy[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
+            ctx.drawImage(enemyImg[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
         }
     }
     ctx.restore();
@@ -119,8 +121,8 @@ const keyPressEvent = (event) => {
         if (!shooterData.shooting) {
             console.log("space");
             shooterData.shooting = true;
-            beam.x = shooterData.x + size_W / 2;
-            beam.y = shooterData.y;
+            beamData.x = shooterData.x + size_W / 2;
+            beamData.y = shooterData.y;
         }
 
     }
@@ -131,6 +133,15 @@ const onBoard = (data) => {
     } else {
         return false;
     }
+}
+const collisionCheck = (b_col, e_col) => {
+    if (((e_col.x <= b_col.x + b_col.w) && (b_col.x <= e_col.x + e_col.w)) && ((b_col.y <= e_col.y + e_col.h) && (e_col.y <= b_col.y + b_col.h))) {
+        console.log("collide");
+        shooterData.shooting = false;
+        e_col.exist = false;
+        return true;
+    }
+    return false;
 }
 
 
