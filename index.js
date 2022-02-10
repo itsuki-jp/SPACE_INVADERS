@@ -5,9 +5,11 @@ const H = canvas.height;
 const size_W = 50;
 const size_H = 50;
 const shooter = new Array(1);
-const enemy = new Array(3);
+const enemy = new Array(5);
 let enemyData = new Array(5 * 5); // { x: x, h: h, exist: true };
-let shooterData = { x: W - 250, h: H - size_H, shooting: false };
+let shooterData = { x: W - 250, y: H - size_H, shooting: false };
+
+let keypress = [false, false]; // 左、右の矢印が押されているかどうか
 
 const init = () => {
     ctx.beginPath();
@@ -37,9 +39,34 @@ const initGame = () => {
             enemyData[4 * i + j] = { x: 2 * size_W + size_W * j, h: size_H * i, exist: true };
         }
     }
-    mainGame();
+    document.addEventListener("keydown", keyDownEvent);
+    document.addEventListener("keyup", keyUpEvent);
+    let inerval = setInterval(() => {
+        mainGame()
+    }, 200);
+}
+const keyDownEvent = (event) => {
+    if (event.key === "ArrowLeft") {
+        keypress = [true, false];
+    }
+    if (event.key === "ArrowRight") {
+        keypress = [false, true];
+    }
+}
+const keyUpEvent = (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        keypress = [false, false];
+    }
 }
 const mainGame = () => {
+    if (keypress[0]) {
+        shooterData.x -= 10;
+        ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
+    }
+    if (keypress[1]) {
+        shooterData.x += 10;
+        ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
+    }
 
 }
 
