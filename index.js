@@ -35,14 +35,49 @@ const initGame = () => {
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
             ctx.drawImage(enemy[i], 2 * size_W + size_W * j, size_H * i, size_W, size_H);
-            enemyData[4 * i + j] = { x: 2 * size_W + size_W * j, y: size_H * i, exist: true };
+            enemyData[5 * i + j] = { x: 2 * size_W + size_W * j, y: size_H * i, exist: true };
         }
     }
     document.addEventListener("keydown", keyDownEvent);
     document.addEventListener("keyup", keyUpEvent);
+    console.log(enemyData);
     let inerval = setInterval(() => {
         mainGame()
     }, 200);
+}
+const mainGame = () => {
+    ctx.fillRect(0, 0, W, H);
+    // shooterの操作
+    if (keypress[0]) {
+        shooterData[0].x -= 10;
+        if (!onBoard(shooterData[0])) {
+            shooterData[0].x += 10;
+            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+        }
+
+    } else if (keypress[1]) {
+        shooterData[0].x += 10;
+        if (!onBoard(shooterData[0])) {
+            shooterData[0].x -= 10;
+        }
+    }
+    ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+    // 敵の操作
+    let movable = true;
+    for (let i = 0; i < enemyData.length; i++) {
+        enemyData[i].x += 1;
+        if (!onBoard(enemyData[i])) {
+            movable = false;
+            break;
+        }
+    }
+    // もし誰も壁に当たらなければ、横に移動する
+    if (movable) {
+        for (let i = 0; i < enemyData.length; i++) {
+            ctx.drawImage(enemy[i % 5], enemyData[i].x, enemyData[i].y, size_W, size_H);
+        }
+    }
+
 }
 const keyDownEvent = (event) => {
     if (event.key === "ArrowLeft") {
@@ -64,27 +99,6 @@ const onBoard = (data) => {
         return false;
     }
 }
-const mainGame = () => {
-    if (keypress[0]) {
-        shooterData[0].x -= 10;
-        if (onBoard(shooterData[0])) {
-            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
-        } else {
-            shooterData[0].x += 10;
-            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
-        }
 
-    }
-    if (keypress[1]) {
-        shooterData[0].x += 10;
-        if (onBoard(shooterData[0])) {
-            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
-        } else {
-            shooterData[0].x -= 10;
-            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
-        }
-    }
-
-}
 
 init();
