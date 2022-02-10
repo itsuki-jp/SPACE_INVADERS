@@ -10,6 +10,7 @@ let enemyData = new Array(5 * 5); // { x: x, h: h, exist: true };
 let shooterData = [{ x: W - 250, y: H - size_H, shooting: false }];
 let direction = 1; // 1の時は右、-1の時は左に動く
 
+
 let keypress = [false, false]; // 左、右の矢印が押されているかどうか
 
 const init = () => {
