@@ -41,6 +41,7 @@ const initGame = () => {
     }
     document.addEventListener("keydown", keyDownEvent);
     document.addEventListener("keyup", keyUpEvent);
+    document.addEventListener("keypress", keyPressEvent);
     console.log(enemyData);
     let inerval = setInterval(() => {
         mainGame()
@@ -101,6 +102,15 @@ const keyDownEvent = (event) => {
 const keyUpEvent = (event) => {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
         keypress = [false, false];
+    }
+}
+const keyPressEvent = (event) => {
+    if (event.keyCode === 32) {
+        if (!shooterData[0].shooting) {
+            console.log("space");
+            shooterData[0].shooting = true;
+        }
+
     }
 }
 const onBoard = (data) => {
