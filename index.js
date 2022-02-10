@@ -7,7 +7,7 @@ const size_H = 50;
 const shooter = new Array(1);
 const enemy = new Array(5);
 let enemyData = new Array(5 * 5); // { x: x, h: h, exist: true };
-let shooterData = { x: W - 250, y: H - size_H, shooting: false };
+let shooterData = [{ x: W - 250, y: H - size_H, shooting: false }];
 
 let keypress = [false, false]; // 左、右の矢印が押されているかどうか
 
@@ -35,8 +35,7 @@ const initGame = () => {
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
             ctx.drawImage(enemy[i], 2 * size_W + size_W * j, size_H * i, size_W, size_H);
-            enemyData[4 * i + j] = [2 * size_W + size_W * j, size_H * i, i];
-            enemyData[4 * i + j] = { x: 2 * size_W + size_W * j, h: size_H * i, exist: true };
+            enemyData[4 * i + j] = { x: 2 * size_W + size_W * j, y: size_H * i, exist: true };
         }
     }
     document.addEventListener("keydown", keyDownEvent);
@@ -58,14 +57,32 @@ const keyUpEvent = (event) => {
         keypress = [false, false];
     }
 }
+const onBoard = (data) => {
+    if ((0 <= data.x) && (data.x < W - size_W) && (0 <= data.y) && (data.y <= H - size_H)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 const mainGame = () => {
     if (keypress[0]) {
-        shooterData.x -= 10;
-        ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
+        shooterData[0].x -= 10;
+        if (onBoard(shooterData[0])) {
+            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+        } else {
+            shooterData[0].x += 10;
+            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+        }
+
     }
     if (keypress[1]) {
-        shooterData.x += 10;
-        ctx.drawImage(shooter[0], shooterData.x, shooterData.y, size_W, size_H);
+        shooterData[0].x += 10;
+        if (onBoard(shooterData[0])) {
+            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+        } else {
+            shooterData[0].x -= 10;
+            ctx.drawImage(shooter[0], shooterData[0].x, shooterData[0].y, size_W, size_H);
+        }
     }
 
 }
